@@ -1,4 +1,4 @@
-# Alex personal website
+# Kang Gyunggoo personal website
 
 Personal site for the existing GitHub account `kgg2512`.
 
