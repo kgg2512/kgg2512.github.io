@@ -13,7 +13,7 @@ function announce(t){$('#announcement').textContent=t;}
 function aLink(label,href,cls){const a=el('a',label,cls);a.href=href;return a;}
 function externalLink(label,href,cls){const a=aLink(label,href,cls);a.target='_blank';a.rel='noopener noreferrer';return a;}
 const groupCounts=new Map(groups.map(g=>[g.id,projects.filter(p=>p.group===g.id).length]));
-let lens='all',catalogFilter='all',focusId='brand',graphMode='flat',showRelations=false;
+let lens='all',catalogFilter='all',focusId='brand',graphMode='orbit',showRelations=false;
 let route='',lastOverview='#/',savedScroll=0;
 const categoryOptions=[{id:'all',name:'모든 연결',color:'var(--purple)'},...groups];
 
@@ -82,6 +82,7 @@ const reducedMotion=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
 function graphPoint(ev){const p=graph.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;return p.matrixTransform(graph.getScreenCTM().inverse());}
 function projectPoint(r){const p=positions.get(r.id);if(graphMode==='flat')return{x:p.x,y:p.y*yScale,depth:1};const dx=p.x-790,dy=(p.y-550)*yScale,z=r.z||0,x=dx*Math.cos(yaw)+z*Math.sin(yaw),z1=-dx*Math.sin(yaw)+z*Math.cos(yaw),y=dy*Math.cos(tilt)-z1*Math.sin(tilt),z2=dy*Math.sin(tilt)+z1*Math.cos(tilt),depth=1200/(1200+z2);return{x:790+x*depth,y:viewHeight/2+y*depth,depth};}
 function drawGraph(){
+ drawNetwork();
  for(const r of records){const p=projectPoint(r),node=nodeElements.get(r.id);node.setAttribute('transform',`translate(${p.x} ${p.y}) scale(${graphMode==='orbit'?Math.max(.7,Math.min(1.12,p.depth)):1})`);}
  for(const ed of edgeElements){const a=projectPoint(recordMap.get(ed.a)),b=projectPoint(recordMap.get(ed.b));ed.line.setAttribute('x1',a.x);ed.line.setAttribute('y1',a.y);ed.line.setAttribute('x2',b.x);ed.line.setAttribute('y2',b.y);ed.captionEl.setAttribute('x',(a.x+b.x)/2);ed.captionEl.setAttribute('y',(a.y+b.y)/2-10);}
  $('#cluster-clouds').setAttribute('transform',`scale(1 ${yScale})`);$('#cluster-clouds').style.opacity=graphMode==='orbit'?'0':'1';updateVisibility();
@@ -94,7 +95,7 @@ function updateVisibility(){
  const count=projects.filter(p=>lens==='all'||p.group===lens).length;$('#graph-count').textContent=`${count} / ${projects.length}개 기록`;
 }
 function setFocus(id){if(!recordMap.has(id))return;focusId=id;renderContext(byId.has(id)?id:'brand');updateVisibility();}
-function setLens(id){if(!categoryOptions.some(g=>g.id===id))return;lens=id;if(!entityVisible(focusId))focusId='brand';for(const selector of ['#lens-list','#mobile-lenses'])$(selector).querySelectorAll('button').forEach(b=>{const active=b.dataset.filter===id;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});renderContext(focusId);updateVisibility();announce((id==='all'?'전체':groupMap.get(id).name)+' 지도');if(id==='all')resetCamera();else if(innerWidth<=760)frameGroup(id);}
+function setLens(id){if(!categoryOptions.some(g=>g.id===id))return;lens=id;if(!entityVisible(focusId))focusId='brand';for(const selector of ['#lens-list','#mobile-lenses'])$(selector).querySelectorAll('button').forEach(b=>{const active=b.dataset.filter===id;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});renderContext(focusId);updateVisibility();drawNetwork();announce((id==='all'?'전체':groupMap.get(id).name)+' 지도');if(id==='all')resetCamera();else if(innerWidth<=760)frameGroup(id);}
 function updateCamera(){$('#world').setAttribute('transform',`translate(${pan.x} ${pan.y}) scale(${zoom})`);$('#zoom-value').textContent=Math.round(zoom*100)+'%';$('#zoom-out').disabled=zoom<=.5;$('#zoom-in').disabled=zoom>=3;stage.classList.toggle('labels-expanded',zoom>=1.25);const mini=$('#mini-window');mini.setAttribute('x',-pan.x/zoom);mini.setAttribute('y',-pan.y/zoom/yScale);mini.setAttribute('width',1600/zoom);mini.setAttribute('height',viewHeight/zoom/yScale);}
 function zoomBy(factor,center={x:800,y:viewHeight/2}){const z=Math.max(.5,Math.min(3,zoom*factor));pan={x:center.x-(center.x-pan.x)*z/zoom,y:center.y-(center.y-pan.y)*z/zoom};zoom=z;updateCamera();$('#graph-tooltip').hidden=true;}
 function resetCamera(){zoom=graphMode==='orbit'?.8:1;pan={x:800*(1-zoom),y:viewHeight/2*(1-zoom)};yaw=-.25;tilt=.18;for(const r of records)positions.set(r.id,{x:r.x,y:r.y});drawGraph();updateCamera();}
@@ -104,7 +105,7 @@ function updateGraphHint(){$('#graph-hint').textContent=innerWidth<=760?'분야�
 new ResizeObserver(fitLayout).observe(stage);
 $('#zoom-in').addEventListener('click',()=>zoomBy(1.25));$('#zoom-out').addEventListener('click',()=>zoomBy(.8));$('#fit-view').addEventListener('click',resetCamera);$('#mini-map').addEventListener('click',()=>{setLens('all');resetCamera();});$('#all-reset').addEventListener('click',()=>{stopTour();showRelations=false;$('#relations-toggle').setAttribute('aria-pressed','false');setLens('all');setFocus('brand');resetCamera();});
 $('#relations-toggle').addEventListener('click',()=>{showRelations=!showRelations;$('#relations-toggle').setAttribute('aria-pressed',String(showRelations));updateVisibility();});
-function setGraphMode(mode){graphMode=mode;$('#flat-view').classList.toggle('selected',mode==='flat');$('#orbit-view').classList.toggle('selected',mode==='orbit');$('#flat-view').setAttribute('aria-pressed',String(mode==='flat'));$('#orbit-view').setAttribute('aria-pressed',String(mode==='orbit'));updateGraphHint();resetCamera();announce(mode==='flat'?'2D 관계 지도':'Orbit 공간 지도');}
+function setGraphMode(mode){graphMode=mode;stage.classList.toggle('network-mode',mode==='orbit');rotationButton.hidden=mode!=='orbit';$('#flat-view').classList.toggle('selected',mode==='flat');$('#orbit-view').classList.toggle('selected',mode==='orbit');$('#flat-view').setAttribute('aria-pressed',String(mode==='flat'));$('#orbit-view').setAttribute('aria-pressed',String(mode==='orbit'));updateGraphHint();resetCamera();announce(mode==='flat'?'2D 관계 지도':'Orbit 공간 지도');}
 $('#flat-view').addEventListener('click',()=>setGraphMode('flat'));$('#orbit-view').addEventListener('click',()=>setGraphMode('orbit'));
 stage.addEventListener('wheel',ev=>{ev.preventDefault();zoomBy(Math.exp(-ev.deltaY*.0015),graphPoint(ev));},{passive:false});
 stage.addEventListener('pointerdown',ev=>{if(ev.button!==0||ev.target.closest('button,.graph-controls'))return;const id=ev.target.closest('[data-entity]')?.dataset.entity,p=graphPoint(ev);drag={pointer:ev.pointerId,start:p,client:{x:ev.clientX,y:ev.clientY},pan:{...pan},id,origin:id?{...positions.get(id)}:null,yaw,tilt,moved:false};suppressClick=false;stage.setPointerCapture(ev.pointerId);$('#graph-tooltip').hidden=true;});
@@ -113,6 +114,45 @@ stage.addEventListener('pointerup',ev=>{if(!drag||drag.pointer!==ev.pointerId)re
 stage.addEventListener('pointercancel',()=>{drag=null;});stage.addEventListener('lostpointercapture',()=>{drag=null;});
 function showTooltip(p,ev){const t=$('#graph-tooltip');t.replaceChildren(el('strong',p.name),el('small',p.lead),el('small','상세 페이지 열기 ↗'));t.hidden=false;placeTooltip(ev);}
 function placeTooltip(ev){const t=$('#graph-tooltip'),r=stage.getBoundingClientRect();t.style.left=Math.max(8,Math.min(ev.clientX-r.left+15,r.width-t.offsetWidth-8))+'px';t.style.top=Math.max(8,Math.min(ev.clientY-r.top+15,r.height-t.offsetHeight-8))+'px';}
+
+
+// Small points are visual texture, never additional project records or asserted relations.
+const networkLayer=svgEl('g',{'aria-hidden':'true',class:'network-texture'});
+$('#world').insertBefore(networkLayer,$('#edges'));
+const networkPalette=['#6ce4df','#f28bbd','#b5a0e8','#6ce4df','#e6b87d'];
+const particles=[],filaments=[];
+let seed=371;function randomNetwork(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+for(const [gi,g] of groups.entries()){
+ const l=layouts[g.id],cloud=[];
+ for(let i=0;i<150;i++){
+  const angle=randomNetwork()*Math.PI*2,u=randomNetwork()*2-1,rad=Math.cbrt(randomNetwork()),ring=Math.sqrt(1-u*u);
+  const r={id:'texture-'+g.id+'-'+i,group:g.id,x:l.x+Math.cos(angle)*ring*rad*l.rx*.88,y:l.y+u*rad*l.ry,z:Math.sin(angle)*ring*rad*175};
+  positions.set(r.id,{x:r.x,y:r.y});
+  const dot=svgEl('circle',{r:i%13===0?2.6:1.2,fill:networkPalette[(gi+i%2)%networkPalette.length]});
+  networkLayer.append(dot);const particle={r,dot};particles.push(particle);cloud.push(particle);
+ }
+ for(let i=0;i<cloud.length;i++){
+  const a=cloud[i];const nearest=cloud.filter(b=>a!==b).sort((b,c)=>distance(a.r,b.r)-distance(a.r,c.r)).slice(0,3);
+  for(const b of nearest){const line=svgEl('line',{stroke:networkPalette[(gi+i%2)%networkPalette.length],'stroke-width':.65});networkLayer.prepend(line);filaments.push({a:a.r,b:b.r,line});}
+ }
+}
+function distance(a,b){return(a.x-b.x)**2+(a.y-b.y)**2+(a.z-b.z)**2;}
+function drawNetwork(){
+ networkLayer.style.display=graphMode==='orbit'?'':'none';if(graphMode!=='orbit')return;
+ const points=new Map();for(const {r,dot} of particles){const p=projectPoint(r);points.set(r.id,p);const visible=lens==='all'||r.group===lens;dot.style.display=visible?'':'none';if(visible){dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('opacity',Math.max(.2,Math.min(.85,p.depth*.65)));}}
+ for(const {a,b,line} of filaments){const visible=lens==='all'||a.group===lens;line.style.display=visible?'':'none';if(visible){const p=points.get(a.id),q=points.get(b.id);line.setAttribute('x1',p.x);line.setAttribute('y1',p.y);line.setAttribute('x2',q.x);line.setAttribute('y2',q.y);line.setAttribute('opacity',focusId==='brand'?.21:.1);}}
+}
+const rotationButton=el('button','회전 일시정지');rotationButton.id='rotation-toggle';rotationButton.setAttribute('aria-pressed','true');$('#relations-toggle').before(rotationButton);
+let rotating=!reducedMotion(),networkRAF=0,networkTime=0;
+function rotationLabel(){rotationButton.textContent=rotating?'회전 일시정지':'자동 회전';rotationButton.setAttribute('aria-pressed',String(rotating));}
+function animateNetwork(now){networkRAF=0;if(!rotating||document.hidden||$('#atlas-view').hidden||graphMode!=='orbit'||reducedMotion()){networkTime=0;return;}if(!networkTime)networkTime=now;if(now-networkTime>=50){if(!drag&&!stage.matches(':hover')&&!stage.contains(document.activeElement)){yaw+=Math.min(now-networkTime,100)*.000045;drawGraph();}networkTime=now;}networkRAF=requestAnimationFrame(animateNetwork);}
+function resumeNetwork(){if(!networkRAF&&rotating&&!document.hidden&&!$('#atlas-view').hidden&&graphMode==='orbit'&&!reducedMotion())networkRAF=requestAnimationFrame(animateNetwork);}
+rotationButton.addEventListener('click',()=>{rotating=!rotating;rotationLabel();resumeNetwork();});
+document.addEventListener('visibilitychange',resumeNetwork);
+window.addEventListener('hashchange',resumeNetwork);
+$('#orbit-view').addEventListener('click',resumeNetwork);
+matchMedia('(prefers-reduced-motion:reduce)').addEventListener('change',()=>{if(reducedMotion()){rotating=false;rotationLabel();}});
+rotationLabel();stage.classList.add('network-mode');
 
 // A bounded, prewritten visual guide. It does not call a model or pretend to run agents.
 const tourSteps=[
@@ -158,4 +198,4 @@ function routePage(){
  if(previous&&previous!==hash){const heading=document.querySelector('#project-view:not([hidden]) h1,#projects-view:not([hidden]) h1,#about-view:not([hidden]) h1,#not-found:not([hidden]) h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true});}}
 }
 window.addEventListener('hashchange',routePage);
-renderAbout();renderContext('brand');renderCatalog();fitLayout();routePage();
+renderAbout();renderContext('brand');renderCatalog();setGraphMode('orbit');fitLayout();routePage();resumeNetwork();

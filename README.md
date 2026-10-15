@@ -6,7 +6,7 @@ A connected map of Kang Gyunggoo’s projects, experiments, and background. The 
 
 ## Navigation
 
-- Atlas: interactive SVG graph with 2D and spatial projection views, category filters, and relationship labels.
+- Atlas: opens in a dark spatial network view with cyan/pink particle clusters, slow automatic rotation, category filters, and relationship labels. The 2D view remains available.
 - Projects: searchable catalogue and 35 individual hash-route detail pages.
 - About: personal background and Graper Labs identity.
 - Connection guide: a bounded, prewritten animation. It does not call an AI model.
@@ -20,3 +20,13 @@ Static HTML, CSS, JavaScript, and local assets. GitHub Pages serves the reposito
 Run `python -m http.server 8771` from this folder for a local preview. Commit and push reviewed changes to `main` to publish.
 
 Source links may require repository or Notion access. The site publishes curated project summaries rather than source-document exports. It contains no credentials, `.env` files, tracking scripts, or analytics service.
+
+## Atlas network update · 2026-10-16
+
+Reference: https://www.instagram.com/reel/DcHPKO-gQLs/ . Visual review used 15 sampled frames across the 15.021-second clip, rather than its unrelated caption. The graph borrows the dark spatial clusters, fine filaments, and camera rotation; it does not reproduce the video's lower dashboard or claim the same underlying application.
+
+Only the Atlas graph presentation changes. The 35 project records, source links, Projects and About content remain intact. The 750 small particles and their local filaments are decorative texture, excluded from navigation and accessibility, not extra records or verified project relationships. Existing catalogue relations remain the meaningful links. No external renderer or dependency is required.
+
+Rotation has a pause control, pauses while interacting with the graph, and stops off-page or in a hidden tab. Reduced-motion preferences disable automatic rotation.
+
+Validation: JavaScript syntax check; local browser checks for default Orbit, 35 records, category filtering (8 of 35 with 150 visible texture points), pause, 2D, connection guide, MyFit detail navigation, and a 390px mobile viewport without horizontal overflow. Browser application error log was empty during these checks.

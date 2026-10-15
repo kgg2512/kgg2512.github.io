@@ -15,3 +15,26 @@ dialog{color:var(--ink);background:var(--panel);border:1px solid var(--line);pad
 @media(max-width:360px){.brand strong{font-size:13px}.brand{gap:9px}.site-header{padding-inline:16px}.brand small{font-size:4px}.brand img{height:29px;width:21px}.header-actions{gap:3px}.atlas-heading h1{font-size:25px}.mobile-lenses .filter-chip{font-size:7px;padding:6px}.graph-stage,#atlas-graph{height:365px}.context-cover{height:86px;width:76px}.context-panel h2{font-size:25px}.page-heading h1{font-size:28px}.project-hero h1{font-size:34px}.project-breadcrumb>span{max-width:110px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media(max-width:540px){.entity-node .node-text{font-size:38px}.entity-node.hub .node-text{font-size:33px}.entity-node .node-type{font-size:16px}.entity-node .node-hit{r:40px}.graph-stage.labels-expanded .entity-node.quiet .node-text{font-size:28px}.graph-bottom p{font-size:10px}.mobile-lenses .filter-chip{min-height:32px}}
+
+/* Spatial network treatment is scoped to the Atlas graph. */
+.graph-stage.network-mode{background:#030609;--canvas:#030609;--ink:#d5e6ed;--muted:#7e98a3;--line:#28424a;background-image:radial-gradient(ellipse at 48% 48%,#101b2240,transparent 65%)}
+.network-mode #graph-background,.network-mode #world>circle{opacity:0}
+.network-texture{pointer-events:none}
+.network-mode .graph-edge{stroke:#829ca6;stroke-width:.8;opacity:.4}
+.network-mode .graph-edge.cross{stroke:#87d6da;stroke-dasharray:none;opacity:.45}
+.network-mode .graph-edge.active{stroke:#f1a6d0;stroke-width:1.5;opacity:.9}
+.network-mode .entity-node .node-dot{fill:#c6ffff;stroke:#6bded7;stroke-width:1;filter:drop-shadow(0 0 6px #6bded799)}
+.network-mode .entity-node .node-text{fill:#cee1e6;stroke:#030609;stroke-width:5px;font-size:19px;letter-spacing:.5px}
+.network-mode .entity-node.hub .node-text{fill:#97e6e4;font-size:22px}
+.network-mode .entity-node.brand-node .node-text{font-size:24px}
+.network-mode .entity-node .node-type{fill:#8099a6;stroke:#030609;font-size:10px}
+.network-mode .entity-node.dim{opacity:.55}
+.network-mode .entity-node.quiet .node-text{opacity:.65}
+.network-mode .entity-node:hover .node-text,.network-mode .entity-node:focus-visible .node-text{opacity:1;fill:#fff}
+.network-mode .brand-ring{fill:#081015;stroke:#85e2df;stroke-width:1}
+.network-mode .graph-controls{color:#d5e6ed;background:#091116;border:1px solid #30434b}
+.network-mode .graph-controls button{color:#d5e6ed}
+.network-mode .canvas-label{color:#819aa5}
+.network-mode .mini-map{background:#091116;border-color:#30434b}
+.network-mode .mini-map rect{stroke:#9de5de}
+@media(max-width:540px){.network-mode .entity-node .node-text{font-size:32px}.network-mode .entity-node.hub .node-text{font-size:31px}.graph-options{gap:8px}.graph-options button{font-size:9px}}
