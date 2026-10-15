@@ -66,3 +66,19 @@ dialog{color:var(--ink);background:var(--panel);border:1px solid var(--line);pad
 
 .network-mode .entity-node.quiet .node-text{display:none}
 .network-mode.labels-expanded .entity-node.quiet .node-text,.network-mode .entity-node.quiet.selected .node-text,.network-mode .entity-node.quiet:focus-visible .node-text,.network-mode .entity-node.quiet:hover .node-text{display:block;opacity:1}
+
+/* Independent light and orbit motion; every effect follows the pause control. */
+.network-mode .core-aura{animation:core-breathe 4s ease-in-out infinite}
+.network-mode .core-crystal{transform-box:fill-box;transform-origin:center;animation:core-turn 18s linear infinite}
+.network-mode .hub-rays{transform-box:fill-box;transform-origin:center;animation:hub-turn 28s linear infinite}
+.network-mode .detail-dot{animation:star-glow 3.6s ease-in-out infinite;animation-delay:var(--twinkle-delay,0s)}
+.network-mode .sphere-grid .equator-ring{stroke-dasharray:12 8;animation:orbit-flow 12s linear infinite}
+.network-mode .graph-edge.cross{stroke-dasharray:5 18;animation:connection-flow 8s linear infinite}
+#graph-stage:not(.motion-running) .core-aura,#graph-stage:not(.motion-running) .core-crystal,#graph-stage:not(.motion-running) .hub-rays,#graph-stage:not(.motion-running) .detail-dot,#graph-stage:not(.motion-running) .equator-ring,#graph-stage:not(.motion-running) .graph-edge.cross{animation-play-state:paused}
+@keyframes core-breathe{0%,100%{opacity:.12;transform:scale(.85)}50%{opacity:.3;transform:scale(1.18)}}
+@keyframes core-turn{from{transform:rotate(24deg)}to{transform:rotate(384deg)}}
+@keyframes hub-turn{to{transform:rotate(360deg)}}
+@keyframes star-glow{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes orbit-flow{to{stroke-dashoffset:-120}}
+@keyframes connection-flow{to{stroke-dashoffset:-92}}
+@media(prefers-reduced-motion:reduce){.network-mode .core-aura,.network-mode .core-crystal,.network-mode .hub-rays,.network-mode .detail-dot,.network-mode .equator-ring,.network-mode .graph-edge.cross{animation:none!important}}

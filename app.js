@@ -146,6 +146,7 @@ for(const [gi,g] of groups.entries()){
    const t=j*2.3999632297+i,u=1-2*(j+.5)/entries.length,radius=26+8*(j%3),point={x:r.spatial.x+Math.cos(t)*Math.sqrt(1-u*u)*radius,y:r.spatial.y+u*radius,z:r.spatial.z+Math.sin(t)*Math.sqrt(1-u*u)*radius};
    const link=svgEl('a',{href:path(p),'data-entity':p.id,'data-detail-kind':entry.kind,'aria-label':p.name+' · '+entry.kind+': '+entry.label,tabindex:'-1',class:'detail-star'});
    const title=svgEl('title');title.textContent=p.name+' · '+entry.kind+': '+entry.label;
+   link.style.setProperty('--twinkle-delay',`${-(i*1.3+j*.7+gi)}s`);
    link.append(title,svgEl('circle',{r:9,class:'detail-hit'}),svgEl('circle',{r:entry.kind==='기술'?2:2.8,fill:palette[gi],class:'detail-dot'}));
    link.addEventListener('pointerenter',ev=>{if(drag||ev.pointerType==='touch')return;setFocus(p.id);const tip=$('#graph-tooltip');tip.replaceChildren(el('strong',p.name),el('small',entry.kind+' · '+entry.label),el('small','프로젝트 상세 보기 ↗'));tip.hidden=false;placeTooltip(ev);});
    link.addEventListener('pointerleave',()=>{$('#graph-tooltip').hidden=true;});
@@ -165,13 +166,24 @@ function drawNetwork(){
  for(const {owner,group,point,link} of detailStars){const visible=lens==='all'||group===lens;link.style.display=visible?'':'none';if(visible){const p=projectSpatial(point);link.setAttribute('transform',`translate(${p.x} ${p.y}) scale(${p.depth})`);link.style.opacity=focusId==='brand'||focusId===owner||focusId==='group-'+group?Math.min(1,p.depth*.8):.28;}}
  for(const {owner,group,point,line} of detailEdges){const visible=lens==='all'||group===lens;line.style.display=visible?'':'none';if(visible){const a=projectPoint(recordMap.get(owner)),b=projectSpatial(point);line.setAttribute('d',curvePath(a,b,.28));line.style.opacity=focusId===owner?.8:.3;}}
 }
-const rotationButton=el('button','회전 일시정지');rotationButton.id='rotation-toggle';rotationButton.setAttribute('aria-pressed','true');$('#relations-toggle').before(rotationButton);
-let rotating=!reducedMotion(),networkRAF=0,networkTime=0;
-function rotationLabel(){rotationButton.textContent=rotating?'회전 일시정지':'자동 회전';rotationButton.setAttribute('aria-pressed',String(rotating));}
-function animateNetwork(now){networkRAF=0;if(!rotating||document.hidden||$('#atlas-view').hidden||graphMode!=='orbit'||reducedMotion()){networkTime=0;return;}if(!networkTime)networkTime=now;if(now-networkTime>=50){if(!drag&&!stage.matches(':hover')&&!stage.contains(document.activeElement)){yaw+=Math.min(now-networkTime,100)*.000045;drawGraph();}networkTime=now;}networkRAF=requestAnimationFrame(animateNetwork);}
+const rotationButton=el('button','모션 일시정지');rotationButton.id='rotation-toggle';rotationButton.setAttribute('aria-pressed','true');$('#relations-toggle').before(rotationButton);
+let rotating=!reducedMotion(),networkRAF=0,networkTime=0,motionTime=0;
+function rotationLabel(){rotationButton.textContent=rotating?'모션 일시정지':'자동 모션';rotationButton.setAttribute('aria-pressed',String(rotating));}
+function animateNetwork(now){
+ networkRAF=0;
+ if(!rotating||document.hidden||$('#atlas-view').hidden||graphMode!=='orbit'||reducedMotion()){networkTime=0;stage.classList.remove('motion-running');return;}
+ if(!networkTime)networkTime=now;
+ const interacting=!!drag||!!stage.querySelector('[data-entity]:hover,[data-entity]:focus-visible');
+ stage.classList.toggle('motion-running',!interacting);
+ if(now-networkTime>=33){
+  if(!interacting){const dt=Math.min(now-networkTime,100),previous=motionTime;motionTime+=dt;yaw+=dt*.00011;tilt+=.045*(Math.sin(motionTime*.00045)-Math.sin(previous*.00045));drawGraph();}
+  networkTime=now;
+ }
+ networkRAF=requestAnimationFrame(animateNetwork);
+}
 function resumeNetwork(){if(!networkRAF&&rotating&&!document.hidden&&!$('#atlas-view').hidden&&graphMode==='orbit'&&!reducedMotion())networkRAF=requestAnimationFrame(animateNetwork);}
 rotationButton.addEventListener('click',()=>{rotating=!rotating;rotationLabel();resumeNetwork();});
-document.addEventListener('visibilitychange',resumeNetwork);
+document.addEventListener('visibilitychange',()=>{networkTime=0;if(document.hidden)stage.classList.remove('motion-running');else resumeNetwork();});
 window.addEventListener('hashchange',resumeNetwork);
 $('#orbit-view').addEventListener('click',resumeNetwork);
 matchMedia('(prefers-reduced-motion:reduce)').addEventListener('change',()=>{if(reducedMotion()){rotating=false;rotationLabel();}});
