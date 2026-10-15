@@ -38,3 +38,31 @@ dialog{color:var(--ink);background:var(--panel);border:1px solid var(--line);pad
 .network-mode .mini-map{background:#091116;border-color:#30434b}
 .network-mode .mini-map rect{stroke:#9de5de}
 @media(max-width:540px){.network-mode .entity-node .node-text{font-size:32px}.network-mode .entity-node.hub .node-text{font-size:31px}.graph-options{gap:8px}.graph-options button{font-size:9px}}
+
+/* Universe: spherical reference geometry, catalogue stars and curved connections. */
+.network-mode{background:radial-gradient(ellipse at 50% 50%,#231022 0%,#0b0712 48%,#030609 85%)!important}
+.sphere-grid{fill:none;stroke:#9d709e;stroke-width:.75;opacity:.24;pointer-events:none}
+.sphere-grid .equator-ring{stroke:#e6a9da;stroke-width:1.1;opacity:.95}
+.detail-ray{fill:none;stroke-width:.8;pointer-events:none}
+.detail-hit{fill:transparent;stroke:none}
+.detail-dot{filter:drop-shadow(0 0 3px #ed87bb88)}
+.detail-star{cursor:pointer}
+.network-mode .graph-edge{fill:none;stroke:#c28db0;stroke-width:1;opacity:.5}
+.network-mode .graph-edge.cross{stroke:#d0abc9;opacity:.55}
+.network-mode .entity-node{opacity:var(--depth,1)}
+.network-mode .entity-node.dim{opacity:calc(var(--depth,1)*.45)}
+.network-mode .entity-node .node-dot{fill:#f4b2d5;stroke:#ed88b9;filter:drop-shadow(0 0 7px #ed88b9)}
+.network-mode .entity-node.hub .node-dot{fill:#ffda8d;stroke:#f8a0bd}
+.hub-rays,.universe-core{display:none;pointer-events:none}
+.network-mode .hub-rays,.network-mode .universe-core{display:block}
+.hub-rays{stroke:#ec8db6;stroke-width:1;fill:none;opacity:.75}
+.core-aura{fill:#ee67ac;opacity:.16;filter:blur(13px)}
+.core-crystal{fill:#e35a9a;stroke:#ffc8e8;stroke-width:1.8;transform:rotate(24deg);filter:drop-shadow(0 0 16px #ee67ac)}
+.network-mode .entity-node .brand-ring{stroke:#eea6d2;opacity:.4;fill:none}
+.network-mode .entity-node.brand-node .node-text{fill:#ffd0e7}
+.network-mode .entity-node.hub .node-text{fill:#e7accc}
+.network-mode .entity-node .node-text{font-size:20px}
+@media(max-width:540px){.network-mode .entity-node .node-text{font-size:32px}.network-mode .entity-node.hub .node-text{font-size:29px}.network-mode .entity-node.brand-node .node-text{font-size:26px}}
+
+.network-mode .entity-node.quiet .node-text{display:none}
+.network-mode.labels-expanded .entity-node.quiet .node-text,.network-mode .entity-node.quiet.selected .node-text,.network-mode .entity-node.quiet:focus-visible .node-text,.network-mode .entity-node.quiet:hover .node-text{display:block;opacity:1}

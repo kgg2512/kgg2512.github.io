@@ -64,7 +64,7 @@ const edges=[];for(const g of groups)edges.push({a:'brand',b:'group-'+g.id,capti
 for(const[a,b,label,source]of DATA.relations)edges.push({a,b,caption:label,kind:'cross',source,color:color(byId.get(a))});
 const edgeElements=[],nodeElements=new Map();
 for(const g of groups){const l=layouts[g.id];const ellipse=svgEl('ellipse',{cx:l.x,cy:l.y,rx:l.rx+42,ry:l.ry+50,class:'cluster-cloud'});ellipse.style.setProperty('--color',g.color);$('#cluster-clouds').append(ellipse);}
-for(const edge of edges){const line=svgEl('line',{class:'graph-edge'+(edge.kind==='cross'?' cross':'')});line.style.setProperty('--color',edge.color);const caption=svgEl('text',{class:'relation-caption'});caption.textContent=edge.caption;caption.hidden=true;$('#edges').append(line);$('#relation-labels').append(caption);edgeElements.push({...edge,line,captionEl:caption});}
+for(const edge of edges){const line=svgEl('path',{class:'graph-edge'+(edge.kind==='cross'?' cross':'')});line.style.setProperty('--color',edge.color);const caption=svgEl('text',{class:'relation-caption'});caption.textContent=edge.caption;caption.hidden=true;$('#edges').append(line);$('#relation-labels').append(caption);edgeElements.push({...edge,line,captionEl:caption});}
 for(const r of records){
  const n=svgEl(r.kind==='project'||r.kind==='brand'?'a':'g',{'data-entity':r.id,class:'entity-node '+(r.kind==='group'?'hub ':'')+(r.kind==='brand'?'brand-node ':'')+(r.kind==='project'&&!byId.get(r.id).featured?'quiet':''),tabindex:'0','aria-label':r.kind==='project'?byId.get(r.id).name+' 상세 페이지':r.name+(r.kind==='group'?' 분야 보기':' 소개'),role:r.kind==='group'?'button':'link'});
  n.style.setProperty('--color',r.color);if(r.kind==='project')n.setAttribute('href',path(byId.get(r.id)));if(r.kind==='brand')n.setAttribute('href','#/about');const radius=r.kind==='brand'?45:r.kind==='group'?11:r.kind==='project'&&byId.get(r.id).featured?10:7;
@@ -80,11 +80,18 @@ for(const r of records){
 const graph=$('#atlas-graph'),stage=$('#graph-stage');let zoom=1,pan={x:0,y:0},viewHeight=1100,yScale=1,yaw=-.25,tilt=.18,drag=null,suppressClick=false;
 const reducedMotion=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
 function graphPoint(ev){const p=graph.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;return p.matrixTransform(graph.getScreenCTM().inverse());}
-function projectPoint(r){const p=positions.get(r.id);if(graphMode==='flat')return{x:p.x,y:p.y*yScale,depth:1};const dx=p.x-790,dy=(p.y-550)*yScale,z=r.z||0,x=dx*Math.cos(yaw)+z*Math.sin(yaw),z1=-dx*Math.sin(yaw)+z*Math.cos(yaw),y=dy*Math.cos(tilt)-z1*Math.sin(tilt),z2=dy*Math.sin(tilt)+z1*Math.cos(tilt),depth=1200/(1200+z2);return{x:790+x*depth,y:viewHeight/2+y*depth,depth};}
+function projectSpatial(v){
+ const size=Math.min(1,(viewHeight-100)/1000),dx=v.x*size,dy=v.y*size,z=v.z*size;
+ const x=dx*Math.cos(yaw)+z*Math.sin(yaw),z1=-dx*Math.sin(yaw)+z*Math.cos(yaw);
+ const y=dy*Math.cos(tilt)-z1*Math.sin(tilt),z2=dy*Math.sin(tilt)+z1*Math.cos(tilt),depth=1800/(1800+z2);
+ return{x:800+x*depth,y:viewHeight/2+y*depth,depth};
+}
+function projectPoint(r){const p=positions.get(r.id);if(graphMode==='flat')return{x:p.x,y:p.y*yScale,depth:1};return projectSpatial(r.spatial);}
+function curvePath(a,b,bend=.12){const dx=b.x-a.x,dy=b.y-a.y;return `M ${a.x} ${a.y} Q ${(a.x+b.x)/2-dy*bend} ${(a.y+b.y)/2+dx*bend} ${b.x} ${b.y}`;}
 function drawGraph(){
  drawNetwork();
- for(const r of records){const p=projectPoint(r),node=nodeElements.get(r.id);node.setAttribute('transform',`translate(${p.x} ${p.y}) scale(${graphMode==='orbit'?Math.max(.7,Math.min(1.12,p.depth)):1})`);}
- for(const ed of edgeElements){const a=projectPoint(recordMap.get(ed.a)),b=projectPoint(recordMap.get(ed.b));ed.line.setAttribute('x1',a.x);ed.line.setAttribute('y1',a.y);ed.line.setAttribute('x2',b.x);ed.line.setAttribute('y2',b.y);ed.captionEl.setAttribute('x',(a.x+b.x)/2);ed.captionEl.setAttribute('y',(a.y+b.y)/2-10);}
+ for(const r of records){const p=projectPoint(r),node=nodeElements.get(r.id);node.setAttribute('transform',`translate(${p.x} ${p.y}) scale(${graphMode==='orbit'?Math.max(.65,Math.min(1.2,p.depth)):1})`);node.style.setProperty('--depth',graphMode==='orbit'?Math.max(.45,Math.min(1,p.depth*.85)):1);}
+ for(const ed of edgeElements){const a=projectPoint(recordMap.get(ed.a)),b=projectPoint(recordMap.get(ed.b));ed.line.setAttribute('d',curvePath(a,b,graphMode==='orbit'?(ed.kind==='cross'?.2:.1):0));ed.captionEl.setAttribute('x',(a.x+b.x)/2);ed.captionEl.setAttribute('y',(a.y+b.y)/2-10);}
  $('#cluster-clouds').setAttribute('transform',`scale(1 ${yScale})`);$('#cluster-clouds').style.opacity=graphMode==='orbit'?'0':'1';updateVisibility();
 }
 function entityVisible(id){const r=recordMap.get(id);return r.kind==='brand'||lens==='all'||r.group===lens;}
@@ -94,11 +101,11 @@ function updateVisibility(){
  for(const e of edgeElements){const visible=entityVisible(e.a)&&entityVisible(e.b),active=e.a===focusId||e.b===focusId;e.line.style.display=visible?'':'none';e.line.classList.toggle('active',active);e.captionEl.style.display=visible&&showRelations&&active?'':'none';}
  const count=projects.filter(p=>lens==='all'||p.group===lens).length;$('#graph-count').textContent=`${count} / ${projects.length}개 기록`;
 }
-function setFocus(id){if(!recordMap.has(id))return;focusId=id;renderContext(byId.has(id)?id:'brand');updateVisibility();}
+function setFocus(id){if(!recordMap.has(id))return;focusId=id;renderContext(byId.has(id)?id:'brand');updateVisibility();drawNetwork();}
 function setLens(id){if(!categoryOptions.some(g=>g.id===id))return;lens=id;if(!entityVisible(focusId))focusId='brand';for(const selector of ['#lens-list','#mobile-lenses'])$(selector).querySelectorAll('button').forEach(b=>{const active=b.dataset.filter===id;b.classList.toggle('selected',active);b.setAttribute('aria-pressed',String(active));});renderContext(focusId);updateVisibility();drawNetwork();announce((id==='all'?'전체':groupMap.get(id).name)+' 지도');if(id==='all')resetCamera();else if(innerWidth<=760)frameGroup(id);}
 function updateCamera(){$('#world').setAttribute('transform',`translate(${pan.x} ${pan.y}) scale(${zoom})`);$('#zoom-value').textContent=Math.round(zoom*100)+'%';$('#zoom-out').disabled=zoom<=.5;$('#zoom-in').disabled=zoom>=3;stage.classList.toggle('labels-expanded',zoom>=1.25);const mini=$('#mini-window');mini.setAttribute('x',-pan.x/zoom);mini.setAttribute('y',-pan.y/zoom/yScale);mini.setAttribute('width',1600/zoom);mini.setAttribute('height',viewHeight/zoom/yScale);}
 function zoomBy(factor,center={x:800,y:viewHeight/2}){const z=Math.max(.5,Math.min(3,zoom*factor));pan={x:center.x-(center.x-pan.x)*z/zoom,y:center.y-(center.y-pan.y)*z/zoom};zoom=z;updateCamera();$('#graph-tooltip').hidden=true;}
-function resetCamera(){zoom=graphMode==='orbit'?.8:1;pan={x:800*(1-zoom),y:viewHeight/2*(1-zoom)};yaw=-.25;tilt=.18;for(const r of records)positions.set(r.id,{x:r.x,y:r.y});drawGraph();updateCamera();}
+function resetCamera(){zoom=1;pan={x:800*(1-zoom),y:viewHeight/2*(1-zoom)};yaw=-.25;tilt=.18;for(const r of records)positions.set(r.id,{x:r.x,y:r.y});drawGraph();updateCamera();}
 function frameGroup(id){const l=layouts[id],target=projectPoint(recordMap.get('group-'+id));zoom=1.8;pan={x:800-target.x*zoom,y:viewHeight/2-target.y*zoom};updateCamera();}
 function fitLayout(){const r=stage.getBoundingClientRect();if(!r.width||!r.height)return;viewHeight=Math.max(720,Math.min(1100,1600*r.height/r.width));yScale=(viewHeight-80)/1100;graph.setAttribute('viewBox',`0 0 1600 ${viewHeight}`);$('#graph-background').setAttribute('height',viewHeight);$('#world>circle').setAttribute('cy',530*yScale);drawGraph();updateCamera();updateGraphHint();}
 function updateGraphHint(){$('#graph-hint').textContent=innerWidth<=760?'분야를 눌러 확대 · 점을 눌러 상세 보기 · + / −로 크기 조절':graphMode==='flat'?'점을 누르면 상세 페이지 · 드래그로 이동 · 휠로 확대':'점을 누르면 상세 페이지 · 빈 공간 드래그로 회전 · 휠로 확대';}
@@ -116,31 +123,47 @@ function showTooltip(p,ev){const t=$('#graph-tooltip');t.replaceChildren(el('str
 function placeTooltip(ev){const t=$('#graph-tooltip'),r=stage.getBoundingClientRect();t.style.left=Math.max(8,Math.min(ev.clientX-r.left+15,r.width-t.offsetWidth-8))+'px';t.style.top=Math.max(8,Math.min(ev.clientY-r.top+15,r.height-t.offsetHeight-8))+'px';}
 
 
-// Small points are visual texture, never additional project records or asserted relations.
-const networkLayer=svgEl('g',{'aria-hidden':'true',class:'network-texture'});
-$('#world').insertBefore(networkLayer,$('#edges'));
-const networkPalette=['#6ce4df','#f28bbd','#b5a0e8','#6ce4df','#e6b87d'];
-const particles=[],filaments=[];
-let seed=371;function randomNetwork(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+// Orbit geometry uses the existing catalogue. Child nodes are real feature/tech entries.
+const networkLayer=svgEl('g',{class:'universe-layer'}),gridLayer=svgEl('g',{'aria-hidden':'true',class:'sphere-grid'}),detailLayer=svgEl('g',{class:'detail-stars'});
+networkLayer.append(gridLayer,detailLayer);$('#world').insertBefore(networkLayer,$('#edges'));
+const palette=['#ee80bc','#6ee0d8','#e8b86b','#ac91ee','#e782a2'];
+recordMap.get('brand').spatial={x:0,y:0,z:0};
+const sphereCurves=[],detailStars=[],detailEdges=[];
+function addSphereCurve(points,cls){const line=svgEl('path',{class:cls});gridLayer.append(line);sphereCurves.push({points,line});}
+for(let i=0;i<12;i++){const angle=i*Math.PI/12,points=[];for(let j=0;j<=96;j++){const t=j/96*Math.PI*2;points.push({x:530*Math.cos(t)*Math.cos(angle),y:530*Math.sin(t),z:530*Math.cos(t)*Math.sin(angle)});}addSphereCurve(points,'meridian');}
+for(let i=-3;i<=3;i++){const lat=i*Math.PI/8,points=[];for(let j=0;j<=96;j++){const t=j/96*Math.PI*2;points.push({x:530*Math.cos(lat)*Math.cos(t),y:530*Math.sin(lat),z:530*Math.cos(lat)*Math.sin(t)});}addSphereCurve(points,'latitude');}
+for(const radius of [420,560]){const points=[];for(let j=0;j<=128;j++){const t=j/128*Math.PI*2;points.push({x:radius*Math.cos(t),y:0,z:radius*Math.sin(t)});}addSphereCurve(points,'equator-ring');}
 for(const [gi,g] of groups.entries()){
- const l=layouts[g.id],cloud=[];
- for(let i=0;i<150;i++){
-  const angle=randomNetwork()*Math.PI*2,u=randomNetwork()*2-1,rad=Math.cbrt(randomNetwork()),ring=Math.sqrt(1-u*u);
-  const r={id:'texture-'+g.id+'-'+i,group:g.id,x:l.x+Math.cos(angle)*ring*rad*l.rx*.88,y:l.y+u*rad*l.ry,z:Math.sin(angle)*ring*rad*175};
-  positions.set(r.id,{x:r.x,y:r.y});
-  const dot=svgEl('circle',{r:i%13===0?2.6:1.2,fill:networkPalette[(gi+i%2)%networkPalette.length]});
-  networkLayer.append(dot);const particle={r,dot};particles.push(particle);cloud.push(particle);
- }
- for(let i=0;i<cloud.length;i++){
-  const a=cloud[i];const nearest=cloud.filter(b=>a!==b).sort((b,c)=>distance(a.r,b.r)-distance(a.r,c.r)).slice(0,3);
-  for(const b of nearest){const line=svgEl('line',{stroke:networkPalette[(gi+i%2)%networkPalette.length],'stroke-width':.65});networkLayer.prepend(line);filaments.push({a:a.r,b:b.r,line});}
- }
+ const angle=-Math.PI/2+gi*Math.PI*2/groups.length;
+ const hub={x:Math.cos(angle)*335,y:Math.sin(angle)*335,z:[-90,140,-150,100,10][gi]};
+ recordMap.get('group-'+g.id).spatial=hub;
+ const members=projects.filter(p=>p.group===g.id);
+ members.forEach((p,i)=>{
+  const t=i*2.3999632297+gi*.6,u=1-2*(i+.5)/members.length,radius=145+20*Math.sin(i*1.7),r=recordMap.get(p.id);
+  r.spatial={x:hub.x+Math.cos(t)*Math.sqrt(1-u*u)*radius,y:hub.y+u*radius,z:hub.z+Math.sin(t)*Math.sqrt(1-u*u)*radius};
+  const entries=[...p.features.map(label=>({label,kind:'기능'})),...p.tech.map(label=>({label,kind:'기술'}))];
+  entries.forEach((entry,j)=>{
+   const t=j*2.3999632297+i,u=1-2*(j+.5)/entries.length,radius=26+8*(j%3),point={x:r.spatial.x+Math.cos(t)*Math.sqrt(1-u*u)*radius,y:r.spatial.y+u*radius,z:r.spatial.z+Math.sin(t)*Math.sqrt(1-u*u)*radius};
+   const link=svgEl('a',{href:path(p),'data-entity':p.id,'data-detail-kind':entry.kind,'aria-label':p.name+' · '+entry.kind+': '+entry.label,tabindex:'-1',class:'detail-star'});
+   const title=svgEl('title');title.textContent=p.name+' · '+entry.kind+': '+entry.label;
+   link.append(title,svgEl('circle',{r:9,class:'detail-hit'}),svgEl('circle',{r:entry.kind==='기술'?2:2.8,fill:palette[gi],class:'detail-dot'}));
+   link.addEventListener('pointerenter',ev=>{if(drag||ev.pointerType==='touch')return;setFocus(p.id);const tip=$('#graph-tooltip');tip.replaceChildren(el('strong',p.name),el('small',entry.kind+' · '+entry.label),el('small','프로젝트 상세 보기 ↗'));tip.hidden=false;placeTooltip(ev);});
+   link.addEventListener('pointerleave',()=>{$('#graph-tooltip').hidden=true;});
+   link.addEventListener('click',ev=>{if(suppressClick){ev.preventDefault();suppressClick=false;}});
+   const line=svgEl('path',{stroke:palette[gi],class:'detail-ray','aria-hidden':'true'});detailLayer.append(line,link);
+   detailStars.push({owner:p.id,group:g.id,point,link});detailEdges.push({owner:p.id,group:g.id,point,line});
+  });
+ });
+ const hubNode=nodeElements.get('group-'+g.id);const rays=svgEl('g',{class:'hub-rays','aria-hidden':'true'});
+ for(let j=0;j<12;j++){const t=j*Math.PI/6;rays.append(svgEl('path',{d:`M ${Math.cos(t)*17} ${Math.sin(t)*17} Q ${Math.cos(t+.18)*33} ${Math.sin(t+.18)*33} ${Math.cos(t+.1)*48} ${Math.sin(t+.1)*48}`}));}hubNode.prepend(rays);
 }
-function distance(a,b){return(a.x-b.x)**2+(a.y-b.y)**2+(a.z-b.z)**2;}
+const brandNode=nodeElements.get('brand');const core=svgEl('g',{class:'universe-core','aria-hidden':'true'});
+core.append(svgEl('circle',{r:55,class:'core-aura'}),svgEl('rect',{x:-25,y:-25,width:50,height:50,rx:9,class:'core-crystal'}));brandNode.prepend(core);
 function drawNetwork(){
  networkLayer.style.display=graphMode==='orbit'?'':'none';if(graphMode!=='orbit')return;
- const points=new Map();for(const {r,dot} of particles){const p=projectPoint(r);points.set(r.id,p);const visible=lens==='all'||r.group===lens;dot.style.display=visible?'':'none';if(visible){dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('opacity',Math.max(.2,Math.min(.85,p.depth*.65)));}}
- for(const {a,b,line} of filaments){const visible=lens==='all'||a.group===lens;line.style.display=visible?'':'none';if(visible){const p=points.get(a.id),q=points.get(b.id);line.setAttribute('x1',p.x);line.setAttribute('y1',p.y);line.setAttribute('x2',q.x);line.setAttribute('y2',q.y);line.setAttribute('opacity',focusId==='brand'?.21:.1);}}
+ for(const {points,line} of sphereCurves){line.setAttribute('d',points.map((v,i)=>{const p=projectSpatial(v);return (i?'L':'M')+p.x+' '+p.y;}).join(' '));}
+ for(const {owner,group,point,link} of detailStars){const visible=lens==='all'||group===lens;link.style.display=visible?'':'none';if(visible){const p=projectSpatial(point);link.setAttribute('transform',`translate(${p.x} ${p.y}) scale(${p.depth})`);link.style.opacity=focusId==='brand'||focusId===owner||focusId==='group-'+group?Math.min(1,p.depth*.8):.28;}}
+ for(const {owner,group,point,line} of detailEdges){const visible=lens==='all'||group===lens;line.style.display=visible?'':'none';if(visible){const a=projectPoint(recordMap.get(owner)),b=projectSpatial(point);line.setAttribute('d',curvePath(a,b,.28));line.style.opacity=focusId===owner?.8:.3;}}
 }
 const rotationButton=el('button','회전 일시정지');rotationButton.id='rotation-toggle';rotationButton.setAttribute('aria-pressed','true');$('#relations-toggle').before(rotationButton);
 let rotating=!reducedMotion(),networkRAF=0,networkTime=0;
