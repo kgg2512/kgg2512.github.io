@@ -6,7 +6,7 @@ A connected map of Kang Gyunggoo’s projects, experiments, and background. The 
 
 ## Navigation
 
-- Atlas: opens as a dark spherical universe with a glowing central core, category hubs, project stars, real feature/technology child nodes, curved connections, and slow automatic rotation. Category filters, relationship labels, and the 2D view remain available.
+- Atlas: opens as a project control room with an automatically moving toroidal particle field, project stars, real feature/technology child nodes, catalogue metrics, a selection inspector, and sector distribution controls. Category filters, relationship labels, and the 2D view remain available.
 - Projects: searchable catalogue and 35 individual hash-route detail pages.
 - About: personal background and Graper Labs identity.
 - Connection guide: a bounded, prewritten animation. It does not call an AI model.
@@ -32,3 +32,14 @@ Rotation has a pause control, pauses while interacting with the graph, and stops
 Motion refinement: automatic angular speed is now 0.11 radians/second (about 2.44 times the previous rate), with a gentle tilt drift and a 33ms rendering interval. The core pulses and spins, hub rays rotate, stars twinkle at staggered phases, and dashed rings/relations flow. Blank-space hover and focused toolbar buttons no longer hold rotation; hovering or keyboard-focusing a node still holds motion for selection. The motion control pauses all effects. Hidden pages, 2D mode, dragging, and reduced-motion preferences are respected. A Node VM regression check exercised the actual animation functions with controlled timestamps and DOM stubs, covering speed, interaction holds, pause/resume, hidden tabs, routes, 2D, and reduced motion. This is an isolated logic check, not a browser rendering test of the new effects.
 
 Validation: JavaScript syntax and whitespace checks; local browser checks for 35 project nodes, 156 feature/technology nodes, 21 sphere curves, finite coordinates, category filtering (8 of 35 with 45 visible child nodes), pause, 2D, connection guide, child-to-project navigation, and a 390px mobile viewport without horizontal overflow. Desktop and mobile screenshots were visually reviewed. Browser application error log was empty during these checks.
+
+
+## Current Atlas control room · 2026-10-16
+
+Adopts the visual concept of https://www.instagram.com/reel/DeFwS5LA2fw/ : a dense toroidal particle field, outward connections, and compact information panels. Only its public cover image and caption were accessible; the video reports a playback restriction, so its motion was not observed or reproduced. Previous sphere descriptions above document the superseded presentation.
+
+The current control room is limited to the Atlas map area. A native Canvas 2D layer draws 3,456 decorative particles (half sampled on narrow screens), projected with the same camera as the interactive SVG project nodes. They flow around the tube while the map turns automatically. These particles do not represent additional projects or relationships. The original 35 projects and 156 actual feature/technology entries remain navigable. There are no added dependencies.
+
+The metric strip counts visible projects, capability entries, recorded cross-project relations, and sectors directly from `catalog.js`. The selection inspector shows the selected project's recorded stage, technology/feature tags, and detail link; sector distribution buttons filter the map and metrics. No simulated market statistics or live-data claims are shown. Mobile panels stack below the map, and 2D mode hides the control-room panels and decorative canvas.
+
+Validation: JavaScript syntax and whitespace checks; desktop browser confirmed automatic node movement, motion pause with CSS effects paused, 35/156/11/5 catalogue metrics, infrastructure filtering to 8/45/1/1 and 45 child nodes, ARD detail navigation and inspector state after returning, and 2D hiding both canvas and panels. A 390px mobile viewport had no horizontal overflow and stacked panels; desktop and mobile screenshots were visually reviewed. Browser error log was empty during these checks. Existing isolated animation regression checks also passed.

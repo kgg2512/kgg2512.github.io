@@ -82,3 +82,41 @@ dialog{color:var(--ink);background:var(--panel);border:1px solid var(--line);pad
 @keyframes orbit-flow{to{stroke-dashoffset:-120}}
 @keyframes connection-flow{to{stroke-dashoffset:-92}}
 @media(prefers-reduced-motion:reduce){.network-mode .core-aura,.network-mode .core-crystal,.network-mode .hub-rays,.network-mode .detail-dot,.network-mode .equator-ring,.network-mode .graph-edge.cross{animation:none!important}}
+
+/* Project control room: real catalogue instruments around a decorative torus. */
+.telemetry-strip,.inspector-deck{display:none}
+.control-mode .telemetry-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0 24px 16px;border:1px solid #233447;background:#080f19}
+.telemetry-cell{padding:13px 15px;border-right:1px solid #233447;min-width:0;color:#b7cedf}
+.telemetry-cell:last-child{border:0}.telemetry-cell small{display:block;font:8px monospace;letter-spacing:.14em;color:#6f91ab}
+.telemetry-cell strong{display:inline-block;margin-top:7px;font:26px monospace;color:#a6ebda;letter-spacing:-.07em}
+.telemetry-cell span{font-size:8px;color:#8295a8;margin-left:8px}
+.control-mode .graph-stage.network-mode{background:radial-gradient(ellipse at 50% 50%,#112536 0%,#080f19 46%,#03080e 85%)!important;border-block:1px solid #233447;min-height:520px}
+.control-mode .network-mode:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.1;background:repeating-linear-gradient(0deg,transparent,transparent 3px,#8db9d4 4px);z-index:2}
+.torus-particles{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.control-mode #atlas-graph{position:relative;z-index:1}
+.control-mode .sphere-grid{stroke:#70abc2;opacity:.2;stroke-width:.7}
+.control-mode .sphere-grid .equator-ring{stroke:#82cbbd;opacity:.45}
+.control-mode .graph-edge{stroke:#7096ab;opacity:.23;stroke-width:.8}
+.control-mode .graph-edge.active{stroke:#a7ebd8;opacity:.85;stroke-width:1.3}
+.control-mode .graph-edge.cross{stroke:#d9bf7f;opacity:.65}
+.control-mode .entity-node .node-dot{fill:#c9e5fb;stroke:#8db4de;filter:drop-shadow(0 0 5px #8db4de)}
+.control-mode .entity-node.hub .node-dot{fill:#e7cb7c;stroke:#e7cb7c}
+.control-mode .entity-node .node-text{fill:#d0e6f0;font-size:21px;stroke:#040b12;stroke-width:5px}
+.control-mode .entity-node.hub .node-text{fill:#b4d8dd;font-size:22px}
+.control-mode .entity-node.brand-node .node-text{fill:#b9eddf}
+.control-mode .hub-rays{stroke:#90c5cb;opacity:.45}
+.control-mode .core-aura{fill:#64b8c8}.control-mode .core-crystal{fill:#184957;stroke:#8edccb;filter:drop-shadow(0 0 14px #61b5c3)}
+.control-mode .detail-dot{filter:none}.control-mode .detail-ray{stroke-width:.7}
+.control-mode .inspector-deck{display:grid;grid-template-columns:1.2fr 1fr;gap:1px;background:#233447;border-bottom:1px solid #233447;color:#c8d8e4}
+.signal-inspector,.sector-ledger{padding:21px 24px;background:#080f19;min-width:0}
+.instrument-label{font:8px monospace;letter-spacing:.12em;color:#79a4b9;margin-bottom:13px}
+.signal-inspector h2{font-size:17px;font-weight:500;letter-spacing:-.04em}.signal-inspector p{font-size:10px;line-height:1.8;color:#91a8b8;margin-top:8px;max-width:420px}
+.signal-status{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:9px;color:#9edbc8}.signal-status span+span{color:#deca99}
+.signal-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:13px}.signal-tags span{border:1px solid #253748;padding:4px 6px;font-size:8px;color:#91a8b8}
+.signal-open{display:inline-block;color:#a6ebda;font-size:10px;margin-top:15px}
+.sector-row{display:grid;grid-template-columns:100px 1fr 20px;align-items:center;gap:10px;width:100%;font-size:9px;padding:7px 0;text-align:left;color:#9cb0c0}
+.sector-row i{height:3px;background:linear-gradient(90deg,var(--sector-color) var(--sector-size),#1b2a39 var(--sector-size));border-radius:2px}.sector-row strong{font:10px monospace;text-align:right;color:#c7d6e1}.sector-row[aria-pressed=true]{color:#e8f7ef}.sector-row:hover{color:#fff}
+.control-mode .graph-bottom{background:#080f19;border-top:0}
+@media(max-width:1100px){.telemetry-cell{padding:12px 10px}.telemetry-cell span{display:block;margin:5px 0 0}.signal-inspector,.sector-ledger{padding:18px}.sector-row{grid-template-columns:90px 1fr 20px}}
+@media(max-width:760px){.control-mode .graph-stage.network-mode{min-height:470px;height:470px}.control-mode #atlas-graph{height:470px;min-height:0}.control-mode .inspector-deck{grid-template-columns:1fr 1fr}.control-mode .telemetry-strip{margin:5px 21px 16px}}
+@media(max-width:540px){.control-mode .telemetry-strip{margin-inline:21px}.telemetry-cell{padding:10px 7px}.telemetry-cell small{font-size:6px;letter-spacing:.04em}.telemetry-cell strong{font-size:23px}.telemetry-cell span{font-size:7px}.control-mode .inspector-deck{grid-template-columns:1fr}.signal-inspector,.sector-ledger{padding:19px 22px}.signal-inspector h2{font-size:19px}.signal-inspector p{font-size:11px}.sector-row{font-size:10px;grid-template-columns:115px 1fr 22px}.control-mode .graph-stage.network-mode{height:400px;min-height:400px}.control-mode #atlas-graph{height:400px}.control-mode .entity-node .node-text{font-size:29px}.control-mode .entity-node.hub .node-text{font-size:27px}.control-mode .entity-node.brand-node .node-text{font-size:26px}}
