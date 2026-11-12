@@ -244,9 +244,9 @@ function routePage(){
  const hash=location.hash||'#/',previous=route;
  if(previous==='#/'||previous==='#/projects'){lastOverview=previous;savedScroll=scrollY;}
  route=hash;stopTour();$('#graph-tooltip').hidden=true;
- for(const id of ['atlas-view','projects-view','project-view','about-view','not-found'])$('#'+id).hidden=true;
+ for(const id of ['intro-view','atlas-view','projects-view','project-view','about-view','not-found'])$('#'+id).hidden=true;
  let nav='atlas';
- if(hash==='#/'||hash==='#'){route='#/';$('#atlas-view').hidden=false;document.title='Gyunggoo’s Atlas — Graper Labs';fitLayout();}
+ if(hash==='#/'||hash==='#'){route='#/';$('#intro-view').hidden=false;$('#atlas-view').hidden=false;document.title='Gyunggoo’s Atlas — Graper Labs';fitLayout();}
  else if(hash==='#/projects'){$('#projects-view').hidden=false;renderCatalog();nav='projects';document.title='Projects — Gyunggoo’s Atlas';}
  else if(hash==='#/about'){$('#about-view').hidden=false;nav='about';document.title='Kang Gyunggoo — Graper Labs';}
  else {const match=hash.match(/^#\/project\/([a-z0-9-]+)$/);if(match&&byId.has(match[1])){$('#project-view').hidden=false;renderProject(byId.get(match[1]));setFocus(match[1]);nav='projects';}else{$('#not-found').hidden=false;document.title='연결을 찾을 수 없습니다 — Gyunggoo’s Atlas';}}
@@ -256,3 +256,7 @@ function routePage(){
 }
 window.addEventListener('hashchange',routePage);
 renderAbout();renderContext('brand');renderCatalog();setGraphMode('orbit');fitLayout();routePage();renderTelemetry();resumeNetwork();
+
+// Editorial introduction: references the existing catalogue, never invents project status.
+for(const id of ['myfit','cinderella','fate']){const p=byId.get(id);if(p)$('#selected-projects').append(projectCard(p));}
+$('#explore-atlas').addEventListener('click',()=>{$('#atlas-view').scrollIntoView({behavior:reducedMotion()?'auto':'smooth'});});

@@ -43,3 +43,24 @@ The current control room is limited to the Atlas map area. A native Canvas 2D la
 The metric strip counts visible projects, capability entries, recorded cross-project relations, and sectors directly from `catalog.js`. The selection inspector shows the selected project's recorded stage, technology/feature tags, and detail link; sector distribution buttons filter the map and metrics. No simulated market statistics or live-data claims are shown. Mobile panels stack below the map, and 2D mode hides the control-room panels and decorative canvas.
 
 Validation: JavaScript syntax and whitespace checks; desktop browser confirmed automatic node movement, motion pause with CSS effects paused, 35/156/11/5 catalogue metrics, infrastructure filtering to 8/45/1/1 and 45 child nodes, ARD detail navigation and inspector state after returning, and 2D hiding both canvas and panels. A 390px mobile viewport had no horizontal overflow and stacked panels; desktop and mobile screenshots were visually reviewed. Browser error log was empty during these checks. Existing isolated animation regression checks also passed.
+
+## Site Reel-inspired introduction · 2026-11-12
+
+The public home now opens with an editorial introduction, generous typography,
+a CSS-only grape sculpture, clear project/about entry points and three selected
+explorations drawn from the existing catalogue. The full Atlas remains below.
+Site Reel (https://sitereel.ai/), especially the sculptural presentation of
+Aerofold (https://sitereel.ai/template/aerofold), informed the layout direction.
+No template source, artwork, prompt text or third-party assets were copied.
+
+All 35 catalogue records, source URLs, project stages, About content, graph,
+search and dark/light modes remain. The selected cards do not assert new product
+or commercial status. No analytics, external fonts, dependencies or paid service
+were added. `editorial.css` isolates the new presentation. The decorative hero is
+static; the existing Atlas motion controls and reduced-motion handling remain.
+
+Validation: headless Chromium screenshots and navigation checks at 1440, 768,
+390 and 320 pixels; catalogue search, project details, About, theme switch,
+search-dialog dismissal and reduced-motion mode. Existing catalogue byte hash
+was checked unchanged. No manual assistive-technology or physical-device test
+is claimed.
