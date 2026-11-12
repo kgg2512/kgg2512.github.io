@@ -12,3 +12,19 @@ html[data-theme=light]{--faint:#74677e;--muted:#65596f}
 @media(max-width:700px){.intro{padding:20px 6vw 36px}.intro-topline{font-size:7px;letter-spacing:.1em;gap:12px}.intro-grid{display:flex;flex-direction:column;gap:0}.intro-copy{padding:40px 0 10px;width:100%}.intro h1{font-size:clamp(32px,8.8vw,52px)}.intro-kicker{font-size:9px;margin-bottom:24px}.intro-description{font-size:13px}.intro-actions{gap:20px;flex-wrap:wrap}.intro-primary{padding:15px 18px}.intro-object{width:100%;min-height:350px}.grape-sculpture{transform:rotate(-12deg) scale(.7)}.object-caption{bottom:12px;font-size:8px}.object-coordinate{font-size:7px}.intro-bottom{flex-direction:column;gap:12px;align-items:flex-start;padding:18px 0}.selected-projects{grid-template-columns:1fr}.selected-projects .project-card{min-height:210px;padding:24px}.selected-heading{margin-top:30px;font-size:9px}.site-header{padding-inline:16px}.site-header nav{gap:16px}.site-header nav a{font-size:12px}.brand small{font-size:6px}.atlas-heading h2{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.selected-projects .project-card{transition:none}.selected-projects .project-card:hover{transform:none}}
 .intro-object{overflow:hidden}
+/* Original mark geometry and palette, assets/graper-mark.svg. */
+.grape-sculpture{width:280px;height:385px;transform:rotate(-9deg);filter:drop-shadow(20px 28px 22px #0005)}
+.grape-sculpture i{width:66px;height:66px;border-radius:19px;background:linear-gradient(140deg,#ffffff80 0%,#ffffff05 44%,#00000055 100%);box-shadow:inset 2px 2px 3px #ffffff55,inset -3px -3px 7px #0003}
+.grape-sculpture i:nth-child(1){left:161px;top:7px;width:60px;height:60px;background-color:#9dd931}
+.grape-sculpture i:nth-child(2){left:112px;top:56px;width:60px;height:60px;background-color:#59b928}
+.grape-sculpture i:nth-child(3){left:56px;top:105px;background-color:#8d2afa}
+.grape-sculpture i:nth-child(4){left:129px;top:105px;background-color:#e03dba}
+.grape-sculpture i:nth-child(5){left:0;top:178px;width:66px;height:66px;background-color:#6609ed}
+.grape-sculpture i:nth-child(6){left:73px;top:178px;background-color:#a411f4}
+.grape-sculpture i:nth-child(7){left:147px;top:178px;background-color:#ef2ca5}
+.grape-sculpture i:nth-child(8){left:220px;top:178px;width:60px;height:66px;background-color:#ff6637}
+.grape-sculpture i:nth-child(9){left:56px;top:252px;width:66px;height:66px;border-radius:19px;transform:none;background:linear-gradient(140deg,#ffffff80 0%,#ffffff05 44%,#00000055 100%),#a809e8}
+.grape-sculpture i:nth-child(10){left:129px;top:252px;background-color:#e827ad}
+.grape-sculpture i:nth-child(11){left:112px;top:325px;width:60px;height:60px;background-color:#f72a9a}
+@media(max-width:1000px){.grape-sculpture{transform:rotate(-9deg) scale(.8)}}
+@media(max-width:700px){.grape-sculpture{transform:rotate(-9deg) scale(.7)}.intro-object{min-height:370px}.site-header nav{gap:17px}}

@@ -64,3 +64,31 @@ Validation: headless Chromium screenshots and navigation checks at 1440, 768,
 search-dialog dismissal and reduced-motion mode. Existing catalogue byte hash
 was checked unchanged. No manual assistive-technology or physical-device test
 is claimed.
+
+## Corporate notices and original mark · 2026-11-12
+
+`/notices/` is a public, script-free electronic-notice space, linked from the
+first-screen navigation and footer. It explicitly says incorporation is in
+preparation and there are no published notices. It is not a declaration of
+incorporation, filing acceptance or legal notice effectiveness. Personal Atlas
+content remains separate. No identifying documents or application attachments
+are published.
+
+The hero sculpture now uses all eleven original logo tiles and their exact
+base colours from `assets/graper-mark.svg`, with original CSS lighting.
+
+Before publishing a real notice, the responsible company representative must
+approve the actual content and confirm the registered homepage, final articles,
+notice-specific period, fallback newspaper and recordkeeping requirements.
+Create a stable HTML page under `/notices/`, with its approved title, publication
+date, period, body and approved attachments, then link it from the list. Preserve
+the original file/hash/time and publication evidence, corrections and historical
+access; do not replace prior notices silently. The current static page has no
+CMS, scheduled publishing or continuous availability monitor. A successful build
+alone is not legal validation. The site remains informational GitHub Pages
+hosting, not a payment or commerce service.
+
+Validation: homepage and notices at 1440/768/390/320px without horizontal
+overflow; primary navigation; keyboard skip link; script-disabled notice reading;
+11 exact logo base colours; no browser application errors. No real notice was
+posted, and no newspaper placement or fee was incurred.
